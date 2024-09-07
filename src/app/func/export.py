@@ -14,6 +14,11 @@ def shrink(image_path: str, confirmed: bool = False):
   run(f'qemu-img resize --shrink {image_path} {device_size}')
   log.info("shrink successful")
 
+def compress(image_path: str):
+  log.info("Compress the image...")
+  run(f'gzip {image_path}')
+  log.info("Compression successful")
+
 
 def export(opts):
   # Check if (Docker) volume folder exists
@@ -29,6 +34,9 @@ def export(opts):
   run(f'qemu-img convert -f qcow2 -O raw {opts.input} {opts.output}')
   log.info("Export successful")
 
+  if(opts.compress):
+    compress(opts.output)
+
 
 # Flash command parser
 def export_parser(parsers, parent_parser, get_usage, env):
@@ -41,5 +49,6 @@ def export_parser(parsers, parent_parser, get_usage, env):
   parser.add_argument('-i', '--input', type=str, help=f"input file (default: {file_input})", default=file_input, required=False)
   parser.add_argument('-o', '--output', type=str, help=f"output file (default: {file_output})", default=file_output, required=False)
   parser.add_argument('-y', dest='confirmed', action='store_false', help="skip confirmation", default=True)
+  parser.add_argument('-c', '--compress', action='store_true', help="compress the exported image using GZip", default=False, required=False )
 
   parser.set_defaults(func=lambda *args: export(*args))

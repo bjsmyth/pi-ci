@@ -1,0 +1,15 @@
+---
+- hosts: raspi
+  tasks:
+  - name: Install git
+    apt:
+      name: git
+      update_cache: yes
+  - name: Clone genmon repo
+    git:
+      repo: https://github.com/jgyates/genmon.git
+      dest: /home/pi/genmon
+      accept_hostkey: yes
+      single_branch: yes
+    become: yes
+    become_user: pi

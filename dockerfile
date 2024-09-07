@@ -53,11 +53,7 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /mnt/root
  && sed -i 's/#PermitEmptyPasswords no/permitEmptyPasswords yes/' /mnt/root/etc/ssh/sshd_config
 
 # Enable root login and remove user 'pi'
-RUN sed -i 's/^root:\*:/root::/' /mnt/root/etc/shadow \
- && sed -i '/^pi/d' /mnt/root/etc/shadow \
- && sed -i '/^pi/d' /mnt/root/etc/passwd \
- && sed -i '/^pi/d' /mnt/root/etc/group \
- && rm -r /mnt/root/home/pi
+RUN sed -i 's/^root:\*:/root::/' /mnt/root/etc/shadow
 
 # Setup root auto login
 RUN mkdir /mnt/root/etc/systemd/system/serial-getty@ttyAMA0.service.d/
@@ -70,7 +66,7 @@ RUN rm /mnt/root/usr/lib/systemd/system/userconfig.service \
  # Create new distro image from modified boot and root
 ARG BUILD_DIR
 RUN mkdir $BUILD_DIR
-RUN guestfish -N $BUILD_DIR/distro.img=bootroot:vfat:ext4:2G \
+RUN guestfish -N $BUILD_DIR/distro.img=bootroot:vfat:ext4:8G \
  && guestfish add $BUILD_DIR/distro.img : run : mount /dev/sda1 / : glob copy-in /mnt/boot/* / : umount / : mount /dev/sda2 / : glob copy-in /mnt/root/* / \
  && sfdisk --part-type $BUILD_DIR/distro.img 1 c
 
